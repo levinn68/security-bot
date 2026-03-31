@@ -37,14 +37,6 @@ module.exports = async (req, res) => {
     const { db, sha } = await fetchDB()
     const oldStatus = getPhoneStatus(db, phone)
 
-    if (oldStatus === 'invalid') {
-      return res.status(400).json({
-        ok: false,
-        status: 'invalid',
-        message: 'Nomor tidak valid'
-      })
-    }
-
     if (oldStatus === 'unregistered') {
       return res.status(200).json({
         ok: false,
@@ -54,7 +46,6 @@ module.exports = async (req, res) => {
     }
 
     removePhoneFromAllLists(db, phone)
-
     await saveDB(db, sha, `Delete access for ${phone}`)
 
     return res.status(200).json({
