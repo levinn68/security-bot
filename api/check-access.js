@@ -14,15 +14,6 @@ module.exports = async (req, res) => {
       })
     }
 
-    const apiKey = req.headers['x-api-key']
-    if (apiKey !== process.env.SECURITY_API_KEY) {
-      return res.status(401).json({
-        ok: false,
-        status: 'unauthorized',
-        message: 'API key tidak valid'
-      })
-    }
-
     const phone = normalizePhone(req.body?.phone)
     if (!phone) {
       return res.status(400).json({
@@ -35,15 +26,34 @@ module.exports = async (req, res) => {
     const { db } = await fetchDB()
     const status = getPhoneStatus(db, phone)
 
+    if (status === 'approved') {
+      return res.status(200).json({
+        ok: true,
+        status: 'approved',
+        message: 'Nomor disetujui'
+      })
+    }
+
+    if (status === 'pending') {
+      return res.status(200).json({
+        ok: false,
+        status: 'pending',
+        message: 'Nomor masih menunggu persetujuan'
+      })
+    }
+
+    if (status === 'rejected') {
+      return res.status(200).json({
+        ok: false,
+        status: 'rejected',
+        message: 'Nomor ditolak'
+      })
+    }
+
     return res.status(200).json({
-      ok: status === 'approved',
-      status,
-      message:
-        status === 'approved' ? 'Nomor disetujui' :
-        status === 'pending' ? 'Nomor masih pending' :
-        status === 'rejected' ? 'Nomor ditolak' :
-        status === 'unregistered' ? 'Nomor belum terdaftar' :
-        'Nomor tidak valid'
+      ok: false,
+      status: 'unregistered',
+      message: 'Nomor belum terdaftar'
     })
   } catch (err) {
     return res.status(500).json({
