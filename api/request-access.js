@@ -2,7 +2,8 @@ const {
   normalizePhone,
   fetchDB,
   saveDB,
-  getPhoneStatus
+  getPhoneStatus,
+  addPhoneToPending
 } = require('../lib/github-db')
 
 module.exports = async (req, res) => {
@@ -12,15 +13,6 @@ module.exports = async (req, res) => {
         ok: false,
         status: 'method_not_allowed',
         message: 'Method tidak diizinkan'
-      })
-    }
-
-    const apiKey = req.headers['x-api-key']
-    if (apiKey !== process.env.SECURITY_API_KEY) {
-      return res.status(401).json({
-        ok: false,
-        status: 'unauthorized',
-        message: 'API key tidak valid'
       })
     }
 
@@ -40,7 +32,7 @@ module.exports = async (req, res) => {
       return res.status(200).json({
         ok: true,
         status: 'approved',
-        message: 'Nomor sudah approved'
+        message: 'Nomor sudah disetujui'
       })
     }
 
@@ -48,7 +40,7 @@ module.exports = async (req, res) => {
       return res.status(200).json({
         ok: false,
         status: 'pending',
-        message: 'Nomor sudah dalam antrian pending'
+        message: 'Nomor sudah dalam antrian persetujuan'
       })
     }
 
@@ -56,18 +48,17 @@ module.exports = async (req, res) => {
       return res.status(200).json({
         ok: false,
         status: 'rejected',
-        message: 'Nomor sebelumnya ditolak'
+        message: 'Nomor pernah ditolak, hubungi owner'
       })
     }
 
-    db.pending.push(phone)
-
+    addPhoneToPending(db, phone)
     await saveDB(db, sha, `Request access for ${phone}`)
 
     return res.status(200).json({
       ok: true,
       status: 'pending',
-      message: 'Request akses berhasil dikirim'
+      message: `Request akses nomor ${phone} berhasil dikirim`
     })
   } catch (err) {
     return res.status(500).json({
