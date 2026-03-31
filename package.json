@@ -1,0 +1,12 @@
+{
+  "name": "levin-security-api",
+  "version": "1.0.0",
+  "description": "Security API untuk whitelist nomor script Wilzu",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  }
+}
