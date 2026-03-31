@@ -2,7 +2,7 @@ const {
   normalizePhone,
   fetchDB,
   saveDB,
-  removePhoneFromAllLists
+  addPhoneToApproved
 } = require('../lib/github-db')
 
 module.exports = async (req, res) => {
@@ -34,10 +34,7 @@ module.exports = async (req, res) => {
     }
 
     const { db, sha } = await fetchDB()
-
-    removePhoneFromAllLists(db, phone)
-    db.approved.push(phone)
-
+    addPhoneToApproved(db, phone)
     await saveDB(db, sha, `Approve access for ${phone}`)
 
     return res.status(200).json({
