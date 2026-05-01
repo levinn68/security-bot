@@ -2,8 +2,7 @@ const {
   normalizePhone,
   fetchDB,
   saveDB,
-  addPhoneToApproved,
-  getPhoneStatus
+  addPhoneToApproved
 } = require('../lib/github-db')
 
 module.exports = async (req, res) => {
@@ -35,16 +34,6 @@ module.exports = async (req, res) => {
     }
 
     const { db, sha } = await fetchDB()
-    const oldStatus = getPhoneStatus(db, phone)
-
-    if (oldStatus === 'approved') {
-      return res.status(200).json({
-        ok: true,
-        status: 'already_approved',
-        message: `Nomor ${phone} sudah approved`
-      })
-    }
-
     addPhoneToApproved(db, phone)
     await saveDB(db, sha, `Approve access for ${phone}`)
 
